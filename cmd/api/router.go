@@ -13,10 +13,14 @@ import (
 )
 
 // setupRouter set the routers and their handlers. It receives the dependencies which will be needed by the handlers.
-func setupRouter(dep dependencies.Dependencies) *gin.Engine {
+func setupRouter(dep dependencies.Dependencies) (*gin.Engine, error) {
+	man, err := dep.GetDiscountsManager()
+	if err != nil {
+		return nil, err
+	}
+
 	r := gin.Default()
 	r.GET("/products", func(c *gin.Context) {
-		man := dep.GetDiscountsManager()
 		filters := make([]products.Filter, 0)
 		if catCrit := c.Query("category"); catCrit != "" {
 			filters = append(filters, products.GetFilterByCategory(catCrit))
@@ -34,7 +38,7 @@ func setupRouter(dep dependencies.Dependencies) *gin.Engine {
 		}
 		c.JSON(http.StatusOK, pp)
 	})
-	return r
+	return r, nil
 }
 
 // PresentablePrice is a nested type, it is used to Present the price and discount in PresentableProduct

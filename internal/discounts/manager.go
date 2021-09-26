@@ -17,6 +17,10 @@ type ActualManager struct {
 	discountApplier DiscountApplier
 }
 
+type NewProductsRepoFunc func(connectionURI string) (products.Repository, error)
+
+var newProductsRepository NewProductsRepoFunc = products.NewRepository
+
 // GetProductsWithDiscount returns the filtered products with the correspondent discounts applied.
 func (pd ActualManager) GetProductsWithDiscount(filters ...products.Filter) ([]Product, error) {
 	pp, err := pd.products.Find(filters...)
@@ -27,9 +31,13 @@ func (pd ActualManager) GetProductsWithDiscount(filters ...products.Filter) ([]P
 }
 
 // NewManager returns an instance of Manager, in concrete an ActualManager.
-func NewManager(connectionURL string) Manager {
-	return &ActualManager{
-		products.NewRepository(connectionURL),
-		NewDiscountApplier(),
+func NewManager(connectionURL string) (Manager, error) {
+	rep, err := newProductsRepository(connectionURL)
+	if err != nil {
+		return nil, err
 	}
+	return &ActualManager{
+		rep,
+		NewDiscountApplier(),
+	}, nil
 }

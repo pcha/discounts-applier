@@ -1,10 +1,9 @@
 package dependencies
 
 import (
+	"errors"
 	"os"
 	"testing"
-
-	"discounts-applier/internal/discounts"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -13,17 +12,17 @@ func TestRealDependencies_GetDiscountsManager(t *testing.T) {
 	tests := []struct {
 		name          string
 		connectionURL string
-		want          discounts.Manager
+		err           error
 	}{
 		{
-			"with envvar set",
-			"mongo_url",
-			discounts.NewManager("mongo_url"),
+			"newDiscountsManager returns ok",
+			"mongo_uri",
+			nil,
 		},
 		{
-			"without envvar set",
+			"newDiscountsManager returns error",
 			"",
-			discounts.NewManager(""),
+			errors.New("some error"),
 		},
 	}
 	for _, tt := range tests {
@@ -39,9 +38,18 @@ func TestRealDependencies_GetDiscountsManager(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+
+			sdm := new(StubDiscountsManager)
+			stop := sdm.StartStub(t, tt.connectionURL, tt.err)
+			defer stop()
+
 			d := RealDependencies{}
-			man := d.GetDiscountsManager()
-			assert.Equal(t, tt.want, man)
+			man, err := d.GetDiscountsManager()
+
+			assert.Equal(t, tt.err, err)
+			if tt.err == nil {
+				assert.Equal(t, sdm, man)
+			}
 		})
 	}
 }

@@ -5,18 +5,42 @@ import (
 	"testing"
 
 	"discounts-applier/internal/discounts/products"
-	productsmocks "discounts-applier/internal/discounts/products/mocks"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewManager(t *testing.T) {
-	url := ""
-	man := NewManager(url)
-	assert.Equal(t, &ActualManager{
-		products:        products.NewRepository(url),
-		discountApplier: NewDiscountApplier(),
-	}, man)
+	tests := []struct {
+		name          string
+		connectionURI string
+		err           error
+	}{
+		{
+			"products repository returns ok",
+			"some uri",
+			nil,
+		},
+		{
+			"products repository returns error",
+			"some uri",
+			errors.New("some error"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			spr := new(StubProductsRepository)
+			stop := spr.StartStub(tt.err)
+			defer stop()
+			man, err := NewManager(tt.connectionURI)
+			assert.Equal(t, tt.err, err)
+			if tt.err == nil {
+				assert.Equal(t, &ActualManager{
+					products:        spr,
+					discountApplier: NewDiscountApplier(),
+				}, man)
+			}
+		})
+	}
 }
 
 func TestActualManager_GetProductsWithDiscount(t *testing.T) {
@@ -137,7 +161,7 @@ func TestActualManager_GetProductsWithDiscount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			pr := new(productsmocks.Repository)
+			pr := new(products.MockRepository)
 			filters := make([]interface{}, len(tt.args.filters))
 			for i, f := range tt.args.filters {
 				filters[i] = f

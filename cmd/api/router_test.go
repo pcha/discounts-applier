@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"discounts-applier/cmd/api/dependencies/mocks"
+	"discounts-applier/cmd/api/dependencies"
 	"discounts-applier/internal/discounts"
 	"discounts-applier/internal/discounts/products"
 
@@ -117,14 +117,20 @@ func Test_setupRouter(t *testing.T) {
 	]`
 
 	tests := []struct {
-		name           string
-		url            string
-		mockedProducts []discounts.Product
-		mockedErr      error
-		filters        []products.Filter
-		wantedCode     int
-		wantedBody     string
+		name                string
+		url                 string
+		mockedProducts      []discounts.Product
+		mockedHandlerErr    error
+		mockedDependencyErr error
+		filters             []products.Filter
+		wantedCode          int
+		wantedBody          string
 	}{
+		{
+			name:                "can't setup routes due depenedency error",
+			url:                 "/products",
+			mockedDependencyErr: errors.New("dependency err"),
+		},
 		{
 			name:           "GET /products when there are products",
 			url:            "/products",
@@ -133,11 +139,11 @@ func Test_setupRouter(t *testing.T) {
 			wantedBody:     withDiscountsWantedBody,
 		},
 		{
-			name:       "GET /products receives an error",
-			url:        "/products",
-			mockedErr:  errors.New("some error"),
-			wantedCode: http.StatusInternalServerError,
-			wantedBody: `{"error": "some error"}`,
+			name:             "GET /products receives an error",
+			url:              "/products",
+			mockedHandlerErr: errors.New("some error"),
+			wantedCode:       http.StatusInternalServerError,
+			wantedBody:       `{"error": "some error"}`,
 		},
 		{
 			name:           "GET /products?category={category} filter category",
@@ -158,14 +164,22 @@ func Test_setupRouter(t *testing.T) {
 			for i, f := range tt.filters {
 				filters[i] = f
 			}
-			pd.On("GetProductsWithDiscount", filters...).Return(tt.mockedProducts, tt.mockedErr)
-			dep := new(mocks.Dependencies)
-			dep.On("GetDiscountsManager").Return(pd)
+			pd.On("GetProductsWithDiscount", filters...).Return(tt.mockedProducts, tt.mockedHandlerErr)
+			dep := new(dependencies.MockDependencies)
+			if tt.mockedDependencyErr != nil {
+				dep.On("GetDiscountsManager").Return(nil, tt.mockedDependencyErr)
+			}
+			dep.On("GetDiscountsManager").Return(pd, nil)
 
 			// when
-			r := setupRouter(dep)
+			r, err := setupRouter(dep)
 
 			// then
+			assert.Equal(t, tt.mockedDependencyErr, err)
+			if tt.mockedDependencyErr != nil {
+				return
+			}
+
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodGet, tt.url, nil)
 			r.ServeHTTP(w, req)

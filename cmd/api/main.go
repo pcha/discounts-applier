@@ -8,7 +8,10 @@ import (
 
 func main() {
 	dep := &dependencies.RealDependencies{}
-	r := setupRouter(dep)
-	err := r.Run(":8080")
+	r, err := setupRouter(dep)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = r.Run(":8080")
 	log.Fatal(err)
 }
