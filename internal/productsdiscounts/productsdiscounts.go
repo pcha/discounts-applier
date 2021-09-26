@@ -9,8 +9,13 @@ type Manager interface {
 	GetProductsWithDiscount(filter ...products.Filter) ([]discounts.Product, error)
 }
 
-type DefaultProductsDiscounts struct{}
+type ActualManager struct {
+}
 
-func (pd DefaultProductsDiscounts) GetProductsWithDiscount(filter ...products.Filter) ([]discounts.Product, error) {
+func (pd ActualManager) GetProductsWithDiscount(filter ...products.Filter) ([]discounts.Product, error) {
 	panic("implement me")
+}
+
+func NewManager(connectionURL string) Manager {
+	return &ActualManager{}
 }
