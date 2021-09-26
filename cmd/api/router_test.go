@@ -9,43 +9,48 @@ import (
 	"discounts-applier/cmd/api/dependencies/mocks"
 	"discounts-applier/internal/productsdiscounts/discounts"
 	pdmocks "discounts-applier/internal/productsdiscounts/mocks"
+	"discounts-applier/internal/productsdiscounts/products"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/guregu/null.v4"
 )
 
 func Test_setupRouter(t *testing.T) {
+	product1 := discounts.Product{
+		SKU:      "000001",
+		Name:     "BV Lean leather ankle boots",
+		Category: "boots",
+		Price: discounts.Price{
+			Original:           89000,
+			Final:              62300,
+			DiscountPercentage: 30,
+		},
+	}
+	product2 := discounts.Product{
+		SKU:      "000002",
+		Name:     "BV Lean leather ankle boots",
+		Category: "boots",
+		Price: discounts.Price{
+			Original:           99000,
+			Final:              69300,
+			DiscountPercentage: 30,
+		},
+	}
+	product3 := discounts.Product{
+		SKU:      "000004",
+		Name:     "Naima embellished suede sandals",
+		Category: "sandals",
+		Price: discounts.Price{
+			Original:           79500,
+			Final:              79500,
+			DiscountPercentage: 0,
+		},
+	}
+
 	withDiscountsProductsMock := []discounts.Product{
-		{
-			SKU:      "000001",
-			Name:     "BV Lean leather ankle boots",
-			Category: "boots",
-			Price: discounts.Price{
-				Original:           89000,
-				Final:              62300,
-				DiscountPercentage: 30,
-			},
-		},
-		{
-			SKU:      "000002",
-			Name:     "BV Lean leather ankle boots",
-			Category: "boots",
-			Price: discounts.Price{
-				Original:           99000,
-				Final:              69300,
-				DiscountPercentage: 30,
-			},
-		},
-		{
-			SKU:      "000004",
-			Name:     "Naima embellished suede sandals",
-			Category: "sandals",
-			Price: discounts.Price{
-				Original:           79500,
-				Final:              79500,
-				DiscountPercentage: 0,
-			},
-		},
+		product1,
+		product2,
+		product3,
 	}
 	withDiscountsWantedBody := `[
 		{
@@ -83,36 +88,78 @@ func Test_setupRouter(t *testing.T) {
 		}
 	]`
 
+	filterByCategoryProductsMock := []discounts.Product{
+		product1,
+		product2,
+	}
+	filterByCategoryWantedBody := `[
+		{
+		  "sku": "000001",
+		  "name": "BV Lean leather ankle boots",
+		  "category": "boots",
+		  "price": {
+			"original": 89000,
+			"final": 62300,
+			"discount_percentage": "30%",
+			"currency": "EUR"
+		  }
+		},
+		{
+			"sku":      "000002",
+			"name":     "BV Lean leather ankle boots",
+			"category": "boots",
+			"price": {
+				"original":           99000,
+				"final":              69300,
+				"discount_percentage": "30%",
+				"currency": "EUR"
+			}
+		}
+	]`
+
 	tests := []struct {
 		name           string
 		url            string
 		mockedProducts []discounts.Product
 		mockedErr      error
+		filters        []products.Filter
 		wantedCode     int
 		wantedBody     string
 	}{
 		{
-			"GET /products when there are products with discounts",
-			"/products",
-			withDiscountsProductsMock,
-			nil,
-			http.StatusOK,
-			withDiscountsWantedBody,
+			name:           "GET /products when there are products",
+			url:            "/products",
+			mockedProducts: withDiscountsProductsMock,
+			wantedCode:     http.StatusOK,
+			wantedBody:     withDiscountsWantedBody,
 		},
 		{
-			"GET /products receives an error",
-			"/products",
-			nil,
-			errors.New("some error"),
-			http.StatusInternalServerError,
-			`{"error": "some error"}`,
+			name:       "GET /products receives an error",
+			url:        "/products",
+			mockedErr:  errors.New("some error"),
+			wantedCode: http.StatusInternalServerError,
+			wantedBody: `{"error": "some error"}`,
+		},
+		{
+			name:           "GET /products?category={category} filter category",
+			url:            "/products?category=boots",
+			mockedProducts: filterByCategoryProductsMock,
+			filters: []products.Filter{
+				products.GetFilterByCategory("boots"),
+			},
+			wantedCode: http.StatusOK,
+			wantedBody: filterByCategoryWantedBody,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			pd := new(pdmocks.Manager)
-			pd.On("GetProductsWithDiscount").Return(tt.mockedProducts, tt.mockedErr)
+			filters := make([]interface{}, len(tt.filters))
+			for i, f := range tt.filters {
+				filters[i] = f
+			}
+			pd.On("GetProductsWithDiscount", filters...).Return(tt.mockedProducts, tt.mockedErr)
 			dep := new(mocks.Dependencies)
 			dep.On("GetProductsDiscounts").Return(pd)
 

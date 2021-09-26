@@ -6,6 +6,7 @@ import (
 
 	"discounts-applier/cmd/api/dependencies"
 	"discounts-applier/internal/productsdiscounts/discounts"
+	"discounts-applier/internal/productsdiscounts/products"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/guregu/null.v4"
@@ -15,7 +16,11 @@ func setupRouter(dep dependencies.Dependencies) *gin.Engine {
 	r := gin.Default()
 	r.GET("/products", func(c *gin.Context) {
 		man := dep.GetProductsDiscounts()
-		dp, err := man.GetProductsWithDiscount()
+		filters := make([]products.Filter, 0)
+		if catCrit := c.Query("category"); catCrit != "" {
+			filters = append(filters, products.GetFilterByCategory(catCrit))
+		}
+		dp, err := man.GetProductsWithDiscount(filters...)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
