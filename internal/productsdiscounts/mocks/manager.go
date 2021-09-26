@@ -15,11 +15,11 @@ type Manager struct {
 	mock.Mock
 }
 
-// GetProductsWithDiscount provides a mock function with given fields: filter
-func (_m *Manager) GetProductsWithDiscount(filter ...products.Filter) ([]discounts.Product, error) {
-	_va := make([]interface{}, len(filter))
-	for _i := range filter {
-		_va[_i] = filter[_i]
+// GetProductsWithDiscount provides a mock function with given fields: filters
+func (_m *Manager) GetProductsWithDiscount(filters ...products.Filter) ([]discounts.Product, error) {
+	_va := make([]interface{}, len(filters))
+	for _i := range filters {
+		_va[_i] = filters[_i]
 	}
 	var _ca []interface{}
 	_ca = append(_ca, _va...)
@@ -27,7 +27,7 @@ func (_m *Manager) GetProductsWithDiscount(filter ...products.Filter) ([]discoun
 
 	var r0 []discounts.Product
 	if rf, ok := ret.Get(0).(func(...products.Filter) []discounts.Product); ok {
-		r0 = rf(filter...)
+		r0 = rf(filters...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]discounts.Product)
@@ -36,7 +36,7 @@ func (_m *Manager) GetProductsWithDiscount(filter ...products.Filter) ([]discoun
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(...products.Filter) error); ok {
-		r1 = rf(filter...)
+		r1 = rf(filters...)
 	} else {
 		r1 = ret.Error(1)
 	}
