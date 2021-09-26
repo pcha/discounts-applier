@@ -1,6 +1,9 @@
 package products
 
 import (
+	"context"
+
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -29,6 +32,22 @@ type MongoRepository struct {
 	client MongoClient
 }
 
-func (m MongoRepository) Find(filter ...Filter) ([]Product, error) {
-	panic("implement me")
+func (m MongoRepository) Find(filters ...Filter) ([]Product, error) {
+	ctx := context.Background()
+	err := m.client.Connect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	coll := m.client.Database(getDBData().Database).Collection(getDBData().Collection)
+	fil := bson.D{}
+	for _, f := range filters {
+		fil = append(fil, f.GetFilter())
+	}
+	cur, err := coll.Find(ctx, fil, options.Find().SetLimit(5))
+	if err != nil {
+		return nil, err
+	}
+	results := &[]Product{}
+	err = cur.All(ctx, results)
+	return *results, err
 }
