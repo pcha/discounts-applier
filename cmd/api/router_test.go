@@ -8,7 +8,6 @@ import (
 
 	"discounts-applier/cmd/api/dependencies/mocks"
 	"discounts-applier/internal/discounts"
-	pdmocks "discounts-applier/internal/discounts/mocks"
 	"discounts-applier/internal/discounts/products"
 
 	"github.com/stretchr/testify/assert"
@@ -154,7 +153,7 @@ func Test_setupRouter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			pd := new(pdmocks.Manager)
+			pd := new(discounts.MockManager)
 			filters := make([]interface{}, len(tt.filters))
 			for i, f := range tt.filters {
 				filters[i] = f

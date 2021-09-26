@@ -28,5 +28,8 @@ func (pd ActualManager) GetProductsWithDiscount(filters ...products.Filter) ([]P
 
 // NewManager returns an instance of Manager, in concrete an ActualManager.
 func NewManager(connectionURL string) Manager {
-	return &ActualManager{}
+	return &ActualManager{
+		products.NewRepository(connectionURL),
+		NewDiscountApplier(),
+	}
 }

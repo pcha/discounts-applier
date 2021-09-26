@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	discountsmocks "discounts-applier/internal/discounts/mocks"
 	"discounts-applier/internal/discounts/products"
 	productsmocks "discounts-applier/internal/discounts/products/mocks"
 
@@ -145,7 +144,7 @@ func TestActualManager_GetProductsWithDiscount(t *testing.T) {
 			}
 			pr.On("Find", filters...).Return(tt.mocks.products, tt.mocks.productsErr)
 
-			da := new(discountsmocks.DiscountApplier)
+			da := new(MockDiscountApplier)
 			da.On("ApplyToList", tt.mocks.products).Return(tt.want)
 
 			man := &ActualManager{
