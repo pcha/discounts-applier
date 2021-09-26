@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	products "discounts-applier/internal/productsdiscounts/products"
+	products "discounts-applier/internal/discounts/products"
 
 	mock "github.com/stretchr/testify/mock"
 )

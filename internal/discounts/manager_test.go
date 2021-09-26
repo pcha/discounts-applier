@@ -1,13 +1,12 @@
-package productsdiscounts
+package discounts
 
 import (
 	"errors"
 	"testing"
 
-	"discounts-applier/internal/productsdiscounts/discounts"
-	discountsmocks "discounts-applier/internal/productsdiscounts/mocks"
-	"discounts-applier/internal/productsdiscounts/products"
-	productsmocks "discounts-applier/internal/productsdiscounts/products/mocks"
+	discountsmocks "discounts-applier/internal/discounts/mocks"
+	"discounts-applier/internal/discounts/products"
+	productsmocks "discounts-applier/internal/discounts/products/mocks"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -48,31 +47,31 @@ func TestActualManager_GetProductsWithDiscount(t *testing.T) {
 		Price:    150000,
 	}
 
-	discountedProduct1 := discounts.Product{
+	discountedProduct1 := Product{
 		SKU:      "0001",
 		Name:     "Product 1",
 		Category: "cat1",
-		Price: discounts.Price{
+		Price: Price{
 			Original:           100000,
 			Final:              70000,
 			DiscountPercentage: 30,
 		},
 	}
-	discountedProduct2 := discounts.Product{
+	discountedProduct2 := Product{
 		SKU:      "0002",
 		Name:     "Product 2",
 		Category: "cat2",
-		Price: discounts.Price{
+		Price: Price{
 			Original:           200000,
 			Final:              180000,
 			DiscountPercentage: 10,
 		},
 	}
-	discountedProduct3 := discounts.Product{
+	discountedProduct3 := Product{
 		SKU:      "0003",
 		Name:     "Product 3",
 		Category: "cat1",
-		Price: discounts.Price{
+		Price: Price{
 			Original:           150000,
 			Final:              150000,
 			DiscountPercentage: 0,
@@ -83,7 +82,7 @@ func TestActualManager_GetProductsWithDiscount(t *testing.T) {
 		name    string
 		mocks   mocks
 		args    args
-		want    []discounts.Product
+		want    []Product
 		wantErr bool
 	}{
 		{
@@ -98,7 +97,7 @@ func TestActualManager_GetProductsWithDiscount(t *testing.T) {
 			args: args{
 				filters: nil,
 			},
-			want: []discounts.Product{
+			want: []Product{
 				discountedProduct1,
 				discountedProduct2,
 				discountedProduct3,
@@ -118,7 +117,7 @@ func TestActualManager_GetProductsWithDiscount(t *testing.T) {
 					products.GetFilterByCategory("cat1"),
 				},
 			},
-			want: []discounts.Product{
+			want: []Product{
 				discountedProduct1,
 				discountedProduct3,
 			},

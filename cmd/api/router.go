@@ -5,17 +5,18 @@ import (
 	"strconv"
 
 	"discounts-applier/cmd/api/dependencies"
-	"discounts-applier/internal/productsdiscounts/discounts"
-	"discounts-applier/internal/productsdiscounts/products"
+	"discounts-applier/internal/discounts"
+	"discounts-applier/internal/discounts/products"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/guregu/null.v4"
 )
 
+// setupRouter set the routers and their handlers. It receives the dependencies which will be needed by the handlers.
 func setupRouter(dep dependencies.Dependencies) *gin.Engine {
 	r := gin.Default()
 	r.GET("/products", func(c *gin.Context) {
-		man := dep.GetProductsDiscounts()
+		man := dep.GetDiscountsManager()
 		filters := make([]products.Filter, 0)
 		if catCrit := c.Query("category"); catCrit != "" {
 			filters = append(filters, products.GetFilterByCategory(catCrit))
@@ -36,6 +37,7 @@ func setupRouter(dep dependencies.Dependencies) *gin.Engine {
 	return r
 }
 
+// PresentablePrice is a nested type, it is used to Present the price and discount in PresentableProduct
 type PresentablePrice struct {
 	Original           int         `json:"original"`
 	Final              int         `json:"final"`
@@ -43,6 +45,8 @@ type PresentablePrice struct {
 	Currency           string      `json:"currency"`
 }
 
+// PresentableProduct represent the information of internal.discounts.Product but is adapted to the presentation
+//requirements.
 type PresentableProduct struct {
 	SKU      string           `json:"sku"`
 	Name     string           `json:"name"`
@@ -50,6 +54,7 @@ type PresentableProduct struct {
 	Price    PresentablePrice `json:"price"`
 }
 
+// present take an internal.discounts.Product and return its representation as a PresentableProduct
 func present(p discounts.Product) PresentableProduct {
 	var disc null.String
 	if p.Price.DiscountPercentage == 0 {

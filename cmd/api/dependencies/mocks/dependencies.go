@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	productsdiscounts "discounts-applier/internal/productsdiscounts"
+	productsdiscounts "discounts-applier/internal/discounts"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -14,7 +14,7 @@ type Dependencies struct {
 }
 
 // GetProductsDiscounts provides a mock function with given fields:
-func (_m *Dependencies) GetProductsDiscounts() productsdiscounts.Manager {
+func (_m *Dependencies) GetDiscountsManager() productsdiscounts.Manager {
 	ret := _m.Called()
 
 	var r0 productsdiscounts.Manager

@@ -4,26 +4,26 @@ import (
 	"os"
 	"testing"
 
-	"discounts-applier/internal/productsdiscounts"
+	"discounts-applier/internal/discounts"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRealDependencies_GetProductsDiscounts(t *testing.T) {
+func TestRealDependencies_GetDiscountsManager(t *testing.T) {
 	tests := []struct {
 		name          string
 		connectionURL string
-		want          productsdiscounts.Manager
+		want          discounts.Manager
 	}{
 		{
 			"with envvar set",
 			"mongo_url",
-			productsdiscounts.NewManager("mongo_url"),
+			discounts.NewManager("mongo_url"),
 		},
 		{
 			"without envvar set",
 			"",
-			productsdiscounts.NewManager(""),
+			discounts.NewManager(""),
 		},
 	}
 	for _, tt := range tests {
@@ -40,7 +40,7 @@ func TestRealDependencies_GetProductsDiscounts(t *testing.T) {
 				t.Fatal(err)
 			}
 			d := RealDependencies{}
-			man := d.GetProductsDiscounts()
+			man := d.GetDiscountsManager()
 			assert.Equal(t, tt.want, man)
 		})
 	}

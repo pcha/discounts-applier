@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"discounts-applier/cmd/api/dependencies/mocks"
-	"discounts-applier/internal/productsdiscounts/discounts"
-	pdmocks "discounts-applier/internal/productsdiscounts/mocks"
-	"discounts-applier/internal/productsdiscounts/products"
+	"discounts-applier/internal/discounts"
+	pdmocks "discounts-applier/internal/discounts/mocks"
+	"discounts-applier/internal/discounts/products"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/guregu/null.v4"
@@ -161,7 +161,7 @@ func Test_setupRouter(t *testing.T) {
 			}
 			pd.On("GetProductsWithDiscount", filters...).Return(tt.mockedProducts, tt.mockedErr)
 			dep := new(mocks.Dependencies)
-			dep.On("GetProductsDiscounts").Return(pd)
+			dep.On("GetDiscountsManager").Return(pd)
 
 			// when
 			r := setupRouter(dep)
