@@ -3,8 +3,9 @@ package products
 import (
 	"context"
 
+	"discounts-applier/internal/discounts/products/client"
+
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -14,10 +15,10 @@ type Repository interface {
 	Write([]Product) error
 }
 
-type newClientFunc func(opts ...*options.ClientOptions) (MongoClient, error)
+type newClientFunc func(opts ...*options.ClientOptions) (client.MongoClient, error)
 
-var newMongoClient newClientFunc = func(opts ...*options.ClientOptions) (MongoClient, error) {
-	return mongo.NewClient(opts...)
+var newMongoClient newClientFunc = func(opts ...*options.ClientOptions) (client.MongoClient, error) {
+	return client.NewWrappedClient(opts...)
 }
 
 func NewRepository(connectionURL string) (Repository, error) {
@@ -30,17 +31,17 @@ func NewRepository(connectionURL string) (Repository, error) {
 		return nil, err
 	}
 	return &MongoRepository{
-		c,
+		&client.WrappedClient{MongoClient: c},
 	}, nil
 }
 
 type MongoRepository struct {
-	client MongoClient
+	client *client.WrappedClient
 }
 
 func (m MongoRepository) Find(filters ...Filter) ([]Product, error) {
 	ctx := context.Background()
-	coll := m.client.Database(getDBData().Database).Collection(getDBData().Collection)
+	coll := m.client.GetDB().GetCollection()
 	fil := bson.D{}
 	for _, f := range filters {
 		fil = append(fil, f.GetFilter())
@@ -56,14 +57,14 @@ func (m MongoRepository) Find(filters ...Filter) ([]Product, error) {
 
 func (m MongoRepository) Clean() error {
 	ctx := context.Background()
-	coll := m.client.Database(getDBData().Database).Collection(getDBData().Collection)
+	coll := m.client.GetDB().GetCollection()
 	_, err := coll.DeleteMany(ctx, bson.D{})
 	return err
 }
 
 func (m MongoRepository) Write(products []Product) error {
 	ctx := context.Background()
-	coll := m.client.Database(getDBData().Database).Collection(getDBData().Collection)
+	coll := m.client.GetDB().GetCollection()
 	prods := make([]interface{}, len(products))
 	for i, p := range products {
 		prods[i] = p

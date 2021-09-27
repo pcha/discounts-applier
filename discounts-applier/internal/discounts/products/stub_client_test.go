@@ -4,8 +4,9 @@ import (
 	"errors"
 	"testing"
 
+	"discounts-applier/internal/discounts/products/client"
+
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func TestStubMongoClient_StartStub(t *testing.T) {
@@ -38,7 +39,7 @@ func TestStubMongoClient_StartStub(t *testing.T) {
 			stop()
 			oc, err := newMongoClient()
 			assert.Nil(t, err)
-			assert.IsType(t, &mongo.Client{}, oc)
+			assert.IsType(t, &client.WrappedClient{}, oc)
 		})
 	}
 }

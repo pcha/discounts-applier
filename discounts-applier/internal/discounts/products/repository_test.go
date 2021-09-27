@@ -38,7 +38,7 @@ func TestNewRepository(t *testing.T) {
 			if tt.wantErr == nil {
 				if assert.IsType(t, &MongoRepository{}, r) {
 					mr := r.(*MongoRepository)
-					assert.Same(t, sc, mr.client)
+					assert.Same(t, sc, mr.client.MongoClient)
 				}
 			}
 		})

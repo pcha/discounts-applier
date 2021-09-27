@@ -1,4 +1,4 @@
-package products
+package client
 
 type DBData struct {
 	Database   string
