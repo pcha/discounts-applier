@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"discounts-applier/cmd/api/dependencies"
+	"discounts-applier/cmd/api/app/dependencies"
 	"discounts-applier/internal/discounts"
 	"discounts-applier/internal/discounts/products"
 
@@ -154,6 +154,12 @@ func Test_setupRouter(t *testing.T) {
 		wantedCode          int
 		wantedBody          string
 	}{
+		{
+			name:       "ping",
+			url:        "/ping",
+			wantedCode: http.StatusOK,
+			wantedBody: `{"message": "pong"}`,
+		},
 		{
 			name:                "can't setup routes due depenedency error",
 			url:                 "/products",

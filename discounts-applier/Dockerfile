@@ -13,8 +13,10 @@ RUN go mod download -x
 
 RUN ls -la
 RUN go get -d -v cmd/api
-RUN GOOS=linux GOARCH=amd64 go build -a -v -o discounts-applier cmd/api/main.go
+RUN GOOS=linux GOARCH=amd64 go build -a -v -o api cmd/api/main.go
+RUN GOOS=linux GOARCH=amd64 go build -a -v -o writer cmd/writer/main.go
+COPY ./cmd/writer/data.json ./
 
 ARG MONGO_URI
 EXPOSE 8080
-ENTRYPOINT ./discounts-applier
+ENTRYPOINT /bin/sh

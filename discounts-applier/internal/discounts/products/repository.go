@@ -10,6 +10,8 @@ import (
 
 type Repository interface {
 	Find(...Filter) ([]Product, error)
+	Clean() error
+	Write([]Product) error
 }
 
 type newClientFunc func(opts ...*options.ClientOptions) (MongoClient, error)
@@ -38,10 +40,6 @@ type MongoRepository struct {
 
 func (m MongoRepository) Find(filters ...Filter) ([]Product, error) {
 	ctx := context.Background()
-	//err := m.client.Connect(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
 	coll := m.client.Database(getDBData().Database).Collection(getDBData().Collection)
 	fil := bson.D{}
 	for _, f := range filters {
@@ -54,4 +52,22 @@ func (m MongoRepository) Find(filters ...Filter) ([]Product, error) {
 	results := &[]Product{}
 	err = cur.All(ctx, results)
 	return *results, err
+}
+
+func (m MongoRepository) Clean() error {
+	ctx := context.Background()
+	coll := m.client.Database(getDBData().Database).Collection(getDBData().Collection)
+	_, err := coll.DeleteMany(ctx, bson.D{})
+	return err
+}
+
+func (m MongoRepository) Write(products []Product) error {
+	ctx := context.Background()
+	coll := m.client.Database(getDBData().Database).Collection(getDBData().Collection)
+	prods := make([]interface{}, len(products))
+	for i, p := range products {
+		prods[i] = p
+	}
+	_, err := coll.InsertMany(ctx, prods)
+	return err
 }

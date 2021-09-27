@@ -9,7 +9,7 @@ services:
       - 8080:8080
     networks:
       - db
-    entrypoint: "./api serve"
+    entrypoint: "./api test"
     depends_on:
       - writer
   writer:
