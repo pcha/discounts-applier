@@ -6,12 +6,11 @@ import (
 	"discounts-applier/cmd/api/app/dependencies"
 )
 
-func Serve() {
+func Serve() error {
 	dep := &dependencies.RealDependencies{}
 	r, err := setupRouter(dep)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = r.Run(":8080")
-	log.Fatal(err)
+	return r.Run(":8080")
 }

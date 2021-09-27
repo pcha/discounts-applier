@@ -10,18 +10,24 @@ import (
 
 func main() {
 	if len(os.Args) != 2 {
-		log.Fatal("the program expects fo one and only one arguments. Try with help")
+		fmt.Println("the program expects fo one and only one arguments. Try with help")
+		os.Exit(1)
 	}
 
 	switch os.Args[1] {
 	case "serve":
-		app.Serve()
+		err := app.Serve()
+		log.Fatal(err)
 	case "test":
-		app.IntegrationTest()
+		res := app.IntegrationTest()
+		if !res {
+			os.Exit(1)
+		}
 	case "help":
 		fmt.Println(getHelp())
 	default:
-		log.Fatal("unkown option\n" + getHelp())
+		fmt.Println("unkown option\n" + getHelp())
+		os.Exit(1)
 	}
 }
 

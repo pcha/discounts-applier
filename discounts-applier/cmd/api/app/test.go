@@ -7,11 +7,16 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/fatih/color"
 	null "gopkg.in/guregu/null.v4"
 )
 
-func IntegrationTest() {
+type testCase struct {
+	name     string
+	query    string
+	expected []PresentableProduct
+}
+
+func IntegrationTest() bool {
 	go Serve()
 	for !ping() {
 		time.Sleep(time.Second)
@@ -71,30 +76,62 @@ func IntegrationTest() {
 			Currency:           "EUR",
 		},
 	}
-	testCase("get products without filter", "", []PresentableProduct{
-		product1,
-		product2,
-		product3,
-		product4,
-		product5,
-	})
-	testCase("get products filtering by boots category", "?category=boots", []PresentableProduct{
-		product1,
-		product2,
-		product3,
-	})
-	testCase("get products filtering by price less than 79500", "?priceLessThan=79500", []PresentableProduct{
-		product3,
-		product4,
-		product5,
-	})
-	testCase("get products filtering by category boots and by price less than 89000", "?category=boots&priceLessThan=89000", []PresentableProduct{
-		product1,
-		product3,
-	})
-	testCase("get products filtering by category sandals", "?category=sandals", []PresentableProduct{
-		product4,
-	})
+
+	cases := []testCase{
+		{
+			"get products without filter",
+			"",
+			[]PresentableProduct{
+				product1,
+				product2,
+				product3,
+				product4,
+				product5,
+			},
+		},
+		{
+			"get products filtering by boots category",
+			"?category=boots",
+			[]PresentableProduct{
+				product1,
+				product2,
+				product3,
+			},
+		},
+		{
+			"get products filtering by price less than 79500",
+			"?priceLessThan=79500",
+			[]PresentableProduct{
+				product3,
+				product4,
+				product5,
+			},
+		},
+		{
+			"get products filtering by category boots and by price less than 89000",
+			"?category=boots&priceLessThan=89000",
+			[]PresentableProduct{
+				product1,
+				product3,
+			},
+		},
+		{
+			"get products filtering by category sandals",
+			"?category=sandals",
+			[]PresentableProduct{
+				product4,
+			},
+		},
+	}
+	totalTests := len(cases)
+	okTests := 0
+	for _, tc := range cases {
+		if runCase(tc) {
+			okTests++
+		}
+	}
+	fmt.Printf("Succesfull tests: %v/%v", okTests, totalTests)
+	return okTests == totalTests
 }
 
 func ping() bool {
@@ -119,9 +156,9 @@ func get(url string) (int, []byte, error) {
 	return resp.StatusCode, body, nil
 }
 
-func testCase(testName, query string, expected []PresentableProduct) bool {
-	fmt.Println("== TEST", testName, "==")
-	code, body, err := get("http://localhost:8080/products" + query)
+func runCase(tc testCase) bool {
+	fmt.Println("== TEST", tc.name, "==")
+	code, body, err := get("http://localhost:8080/products" + tc.query)
 	if err != nil {
 		failTest(err.Error())
 		return false
@@ -130,7 +167,7 @@ func testCase(testName, query string, expected []PresentableProduct) bool {
 	if code != http.StatusOK {
 		return failTest("status code != 200. Got %v. Body %q", code, strBody)
 	}
-	expectedJson, err := json.Marshal(expected)
+	expectedJson, err := json.Marshal(tc.expected)
 	if err != nil {
 		return failTest(err.Error())
 	}
@@ -143,11 +180,11 @@ func testCase(testName, query string, expected []PresentableProduct) bool {
 }
 
 func failTest(message string, args ...interface{}) bool {
-	color.Red("FAIL:", fmt.Sprintf(message, args...))
+	fmt.Println("FAIL:", fmt.Sprintf(message, args...))
 	return false
 }
 
 func passTest(message string, args ...interface{}) bool {
-	color.Green("PASS:", fmt.Sprintf(message, args...))
+	fmt.Println("PASS:", fmt.Sprintf(message, args...))
 	return true
 }
