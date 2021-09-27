@@ -59,6 +59,12 @@ func TestMongoRepository_Find(t *testing.T) {
 		Category: "cat1",
 		Price:    22222,
 	}
+	prod3 := Product{
+		SKU:      "0003",
+		Name:     "Product 3",
+		Category: "cat3",
+		Price:    15000,
+	}
 	tests := []struct {
 		name          string
 		connectionURI string
@@ -71,6 +77,7 @@ func TestMongoRepository_Find(t *testing.T) {
 			expected: []Product{
 				prod1,
 				prod2,
+				prod3,
 			},
 		},
 		{
@@ -81,6 +88,17 @@ func TestMongoRepository_Find(t *testing.T) {
 			},
 			expected: []Product{
 				prod2,
+			},
+		},
+		{
+			name:          "with priceLessThan filter",
+			connectionURI: connectionURI,
+			filters: []Filter{
+				GetFilterByPriceLessThan(15000),
+			},
+			expected: []Product{
+				prod1,
+				prod3,
 			},
 		},
 	}

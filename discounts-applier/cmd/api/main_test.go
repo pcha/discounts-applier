@@ -115,6 +115,34 @@ func Test_setupRouter(t *testing.T) {
 			}
 		}
 	]`
+	filterByPriceLessThanProductsMock := []discounts.Product{
+		product1,
+		product3,
+	}
+	filterByPriceLessThanWantedBody := `[
+		{
+		  "sku": "000001",
+		  "name": "BV Lean leather ankle boots",
+		  "category": "boots",
+		  "price": {
+			"original": 89000,
+			"final": 62300,
+			"discount_percentage": "30%",
+			"currency": "EUR"
+		  }
+		},
+		{
+		  "sku": "000004",
+		  "name": "Naima embellished suede sandals",
+		  "category": "sandals",
+		  "price": {
+			"original": 79500,
+			"final": 79500,
+			"discount_percentage": null,
+			"currency": "EUR"
+		  }
+		}
+	]`
 
 	tests := []struct {
 		name                string
@@ -154,6 +182,23 @@ func Test_setupRouter(t *testing.T) {
 			},
 			wantedCode: http.StatusOK,
 			wantedBody: filterByCategoryWantedBody,
+		},
+		{
+			name:           "GET /products?priceLessThan={price} filter by price less than or equal the given",
+			url:            "/products?priceLessThan=89000",
+			mockedProducts: filterByPriceLessThanProductsMock,
+			filters: []products.Filter{
+				products.GetFilterByPriceLessThan(89000),
+			},
+			wantedCode: http.StatusOK,
+			wantedBody: filterByPriceLessThanWantedBody,
+		},
+		{
+			name:           "GET /products?priceLessThan={string} fails for invalid format filter",
+			url:            "/products?priceLessThan=3312.50",
+			mockedProducts: filterByPriceLessThanProductsMock,
+			wantedCode:     http.StatusBadRequest,
+			wantedBody:     `{"error": "invalid value \"3312.50\" for priceLessThan, the value must be a integer"}`,
 		},
 	}
 	for _, tt := range tests {

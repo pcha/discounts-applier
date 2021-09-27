@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -35,6 +36,16 @@ func setupRouter(dep dependencies.Dependencies) (*gin.Engine, error) {
 		filters := make([]products.Filter, 0)
 		if catCrit := c.Query("category"); catCrit != "" {
 			filters = append(filters, products.GetFilterByCategory(catCrit))
+		}
+		if pricLesCrit := c.Query("priceLessThan"); pricLesCrit != "" {
+			crit, err := strconv.Atoi(pricLesCrit)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": fmt.Sprintf("invalid value %q for priceLessThan, the value must be a integer", pricLesCrit),
+				})
+				return
+			}
+			filters = append(filters, products.GetFilterByPriceLessThan(crit))
 		}
 		dp, err := man.GetProductsWithDiscount(filters...)
 		if err != nil {
