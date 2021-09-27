@@ -1,4 +1,4 @@
-package app
+package router
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"discounts-applier/cmd/api/app/dependencies"
+	"discounts-applier/cmd/api/app/router/dependencies"
 	"discounts-applier/internal/discounts"
 	"discounts-applier/internal/discounts/products"
 
@@ -14,7 +14,7 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-func Test_setupRouter(t *testing.T) {
+func TestSetupRouter(t *testing.T) {
 	product1 := discounts.Product{
 		SKU:      "000001",
 		Name:     "BV Lean leather ankle boots",
@@ -223,7 +223,7 @@ func Test_setupRouter(t *testing.T) {
 			dep.On("GetDiscountsManager").Return(pd, nil)
 
 			// when
-			r, err := setupRouter(dep)
+			r, err := SetupRouter(dep)
 
 			// then
 			assert.Equal(t, tt.mockedDependencyErr, err)

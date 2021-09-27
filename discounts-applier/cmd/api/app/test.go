@@ -7,69 +7,68 @@ import (
 	"net/http"
 	"time"
 
+	"discounts-applier/cmd/api/app/router"
+
 	null "gopkg.in/guregu/null.v4"
 )
 
 type testCase struct {
 	name     string
 	query    string
-	expected []PresentableProduct
+	expected []router.PresentableProduct
 }
 
 func IntegrationTest() bool {
-	go Serve()
-	for !ping() {
-		time.Sleep(time.Second)
-	}
-	product1 := PresentableProduct{
+	startServer()
+	product1 := router.PresentableProduct{
 		SKU:      "000001",
 		Name:     "BV Lean leather ankle boots",
 		Category: "boots",
-		Price: PresentablePrice{
+		Price: router.PresentablePrice{
 			Original:           89000,
 			Final:              62300,
 			DiscountPercentage: null.StringFrom("30%"),
 			Currency:           "EUR",
 		},
 	}
-	product2 := PresentableProduct{
+	product2 := router.PresentableProduct{
 		SKU:      "000002",
 		Name:     "BV Lean leather ankle boots",
 		Category: "boots",
-		Price: PresentablePrice{
+		Price: router.PresentablePrice{
 			Original:           99000,
 			Final:              69300,
 			DiscountPercentage: null.StringFrom("30%"),
 			Currency:           "EUR",
 		},
 	}
-	product3 := PresentableProduct{
+	product3 := router.PresentableProduct{
 		SKU:      "000003",
 		Name:     "Ashlington leather ankle boots",
 		Category: "boots",
-		Price: PresentablePrice{
+		Price: router.PresentablePrice{
 			Original:           71000,
 			Final:              49700,
 			DiscountPercentage: null.StringFrom("30%"),
 			Currency:           "EUR",
 		},
 	}
-	product4 := PresentableProduct{
+	product4 := router.PresentableProduct{
 		SKU:      "000004",
 		Name:     "Naima embellished suede sandals",
 		Category: "sandals",
-		Price: PresentablePrice{
+		Price: router.PresentablePrice{
 			Original:           79500,
 			Final:              79500,
 			DiscountPercentage: null.StringFromPtr(nil),
 			Currency:           "EUR",
 		},
 	}
-	product5 := PresentableProduct{
+	product5 := router.PresentableProduct{
 		SKU:      "000005",
 		Name:     "Nathane leather sneakers",
 		Category: "sneakers",
-		Price: PresentablePrice{
+		Price: router.PresentablePrice{
 			Original:           59000,
 			Final:              59000,
 			DiscountPercentage: null.StringFromPtr(nil),
@@ -81,7 +80,7 @@ func IntegrationTest() bool {
 		{
 			"get products without filter",
 			"",
-			[]PresentableProduct{
+			[]router.PresentableProduct{
 				product1,
 				product2,
 				product3,
@@ -92,7 +91,7 @@ func IntegrationTest() bool {
 		{
 			"get products filtering by boots category",
 			"?category=boots",
-			[]PresentableProduct{
+			[]router.PresentableProduct{
 				product1,
 				product2,
 				product3,
@@ -101,7 +100,7 @@ func IntegrationTest() bool {
 		{
 			"get products filtering by price less than 79500",
 			"?priceLessThan=79500",
-			[]PresentableProduct{
+			[]router.PresentableProduct{
 				product3,
 				product4,
 				product5,
@@ -110,7 +109,7 @@ func IntegrationTest() bool {
 		{
 			"get products filtering by category boots and by price less than 89000",
 			"?category=boots&priceLessThan=89000",
-			[]PresentableProduct{
+			[]router.PresentableProduct{
 				product1,
 				product3,
 			},
@@ -118,7 +117,7 @@ func IntegrationTest() bool {
 		{
 			"get products filtering by category sandals",
 			"?category=sandals",
-			[]PresentableProduct{
+			[]router.PresentableProduct{
 				product4,
 			},
 		},
@@ -132,6 +131,13 @@ func IntegrationTest() bool {
 	}
 	fmt.Printf("Succesfull tests: %v/%v", okTests, totalTests)
 	return okTests == totalTests
+}
+
+func startServer() {
+	go Serve()
+	for !ping() {
+		time.Sleep(time.Second)
+	}
 }
 
 func ping() bool {

@@ -1,11 +1,11 @@
-package app
+package router
 
 import (
 	"fmt"
 	"net/http"
 	"strconv"
 
-	"discounts-applier/cmd/api/app/dependencies"
+	"discounts-applier/cmd/api/app/router/dependencies"
 	"discounts-applier/internal/discounts"
 	"discounts-applier/internal/discounts/products"
 
@@ -13,8 +13,8 @@ import (
 	null "gopkg.in/guregu/null.v4"
 )
 
-// setupRouter set the routers and their handlers. It receives the dependencies which will be needed by the handlers.
-func setupRouter(dep dependencies.Dependencies) (*gin.Engine, error) {
+// SetupRouter set the routers and their handlers. It receives the dependencies which will be needed by the handlers.
+func SetupRouter(dep dependencies.Dependencies) (*gin.Engine, error) {
 	man, err := dep.GetDiscountsManager()
 	if err != nil {
 		return nil, err
