@@ -6,7 +6,7 @@ import (
 	"discounts-applier/internal/discounts"
 )
 
-const ConnectionUrlKey = "MONGO_URL"
+const ConnectionUrlKey = "MONGO_URI"
 
 // Dependencies return the dependencies that could need the application
 type Dependencies interface {

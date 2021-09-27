@@ -23,6 +23,10 @@ func NewRepository(connectionURL string) (Repository, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = c.Connect(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	return &MongoRepository{
 		c,
 	}, nil
@@ -34,10 +38,10 @@ type MongoRepository struct {
 
 func (m MongoRepository) Find(filters ...Filter) ([]Product, error) {
 	ctx := context.Background()
-	err := m.client.Connect(ctx)
-	if err != nil {
-		return nil, err
-	}
+	//err := m.client.Connect(ctx)
+	//if err != nil {
+	//	return nil, err
+	//}
 	coll := m.client.Database(getDBData().Database).Collection(getDBData().Collection)
 	fil := bson.D{}
 	for _, f := range filters {

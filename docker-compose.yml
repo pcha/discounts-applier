@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  app:
+    build:
+      discounts-applier
+    environment:
+      MONGO_URI: "mongodb+srv://unittests:s6Xt4KB1q5y28N1o@cluster0.p7omq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+    ports:
+      - 8080:8080
+

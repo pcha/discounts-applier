@@ -9,6 +9,12 @@ type StubMongoClient struct {
 	originalNewFunc newClientFunc
 }
 
+func NewStubMongoClient() *StubMongoClient {
+	return &StubMongoClient{
+		MockMongoClient: new(MockMongoClient),
+	}
+}
+
 type StopStub func()
 
 func (s *StubMongoClient) StartStub(err error) StopStub {

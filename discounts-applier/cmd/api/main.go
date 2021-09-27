@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -11,6 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"gopkg.in/guregu/null.v4"
 )
+
+func main() {
+	dep := &dependencies.RealDependencies{}
+	r, err := setupRouter(dep)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = r.Run(":8080")
+	log.Fatal(err)
+}
 
 // setupRouter set the routers and their handlers. It receives the dependencies which will be needed by the handlers.
 func setupRouter(dep dependencies.Dependencies) (*gin.Engine, error) {
