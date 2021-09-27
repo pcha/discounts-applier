@@ -4,7 +4,7 @@ services:
     build:
       discounts-applier
     environment:
-      MONGO_URI: "mongodb://user:pass@mongo:27017"
+      MONGO_URI: "mongodb://user:passa@mongo:27017"
     ports:
       - 8080:8080
     networks:
