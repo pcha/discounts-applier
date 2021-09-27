@@ -1,6 +1,5 @@
 # This is a basic workflow to help you get started with Actions
-
-name: CI
+name: integration_test
 
 # Controls when the workflow will run
 on:
@@ -22,10 +21,8 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Tests
-        # You may pin to the exact commit or the version.
-        # uses: isbang/compose-action@fab6f72bef82b75de541a7b9da1d23412953c2bd
-        uses: isbang/compose-action@v1.0.0
-        with:
-          # relative path to compose file
-          compose-file: ./docker-compose-test.yml
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Start containers
+        run: docker-compose -f "docker-compose.yml" up -d --build
