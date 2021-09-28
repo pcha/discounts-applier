@@ -9,17 +9,9 @@ services:
       - 8080:8080
     networks:
       - db
-    entrypoint: "./api serve"
-    depends_on:
-      - writer
-  writer:
-    build:
-      discounts-applier
-    environment:
-      MONGO_URI: "mongodb://user:pass@mongo:27017"
-    networks:
-      - db
-    entrypoint: "./writer"
+    entrypoint: >
+      sh -c "./writer &&
+             ./api serve"
     depends_on:
       - mongo
   mongo:

@@ -1,3 +1,4 @@
+// Package app contains the needed to start the application a d test it
 package app
 
 import (
