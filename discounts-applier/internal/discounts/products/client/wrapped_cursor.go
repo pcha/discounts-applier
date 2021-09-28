@@ -1,9 +1,13 @@
 package client
 
-import "context"
+import (
+	"context"
+
+	"go.mongodb.org/mongo-driver/mongo"
+)
 
 type WrappedCursor struct {
-	MongoCursor
+	*mongo.Cursor
 }
 
 func (c *WrappedCursor) Unmarshall(results interface{}) error {

@@ -14,6 +14,9 @@ import (
 
 // MongoDatabase ...
 type MongoDatabase interface {
+	GetCollection() MongoCollection
+
+	// Inheritance from *mongo.Database
 	// Client returns the Client the Database was created from.
 	Client() *mongo.Client
 	// Name returns the name of the database.

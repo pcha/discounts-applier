@@ -6,15 +6,15 @@ import (
 )
 
 type WrappedClient struct {
-	MongoClient
+	*mongo.Client
 }
 
-func (w WrappedClient) GetDB() *WrappedDB {
+func (w WrappedClient) GetDB() MongoDatabase {
 	db := w.Database(getDBData().Database)
 	return &WrappedDB{db}
 }
 
-func NewWrappedClient(opts ...*options.ClientOptions) (*WrappedClient, error) {
+func NewMongoClient(opts ...*options.ClientOptions) (MongoClient, error) {
 	cli, err := mongo.NewClient(opts...)
-	return &WrappedClient{cli}, err
+	return MongoClient(&WrappedClient{cli}), err
 }

@@ -6,7 +6,6 @@ import (
 
 	"discounts-applier/internal/discounts/products"
 
-	"github.com/benweissmann/memongo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,13 +47,4 @@ func TestStubProductsRepository_StartStub(t *testing.T) {
 			assert.Equal(t, werr, err)
 		})
 	}
-}
-
-func TestRepoWithMemongo(t *testing.T) {
-	srv, err := memongo.Start("4.0.5")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer srv.Stop()
-	srv.URIWithRandomDB()
 }

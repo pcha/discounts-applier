@@ -3,11 +3,12 @@ package client
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type WrappedCollection struct {
-	MongoCollection
+	*mongo.Collection
 }
 
 func (c *WrappedCollection) FindFive(filter interface{}) (MongoCursor, error) {

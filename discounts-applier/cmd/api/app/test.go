@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
@@ -134,7 +135,10 @@ func IntegrationTest() bool {
 }
 
 func startServer() {
-	go Serve()
+	go func() {
+		err := Serve()
+		log.Fatal(err)
+	}()
 	for !ping() {
 		time.Sleep(time.Second)
 	}

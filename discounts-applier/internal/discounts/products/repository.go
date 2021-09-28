@@ -18,7 +18,7 @@ type Repository interface {
 type newClientFunc func(opts ...*options.ClientOptions) (client.MongoClient, error)
 
 var newMongoClient newClientFunc = func(opts ...*options.ClientOptions) (client.MongoClient, error) {
-	return client.NewWrappedClient(opts...)
+	return client.NewMongoClient(opts...)
 }
 
 func NewRepository(connectionURL string) (Repository, error) {
@@ -31,22 +31,23 @@ func NewRepository(connectionURL string) (Repository, error) {
 		return nil, err
 	}
 	return &MongoRepository{
-		&client.WrappedClient{MongoClient: c},
+		c,
 	}, nil
 }
 
 type MongoRepository struct {
-	client *client.WrappedClient
+	client client.MongoClient
 }
 
 func (m MongoRepository) Find(filters ...Filter) ([]Product, error) {
 	ctx := context.Background()
-	coll := m.client.GetDB().GetCollection()
+	db := m.client.GetDB()
+	coll := db.GetCollection()
 	fil := bson.D{}
 	for _, f := range filters {
 		fil = append(fil, f.GetFilter())
 	}
-	cur, err := coll.Find(ctx, fil, options.Find().SetLimit(5))
+	cur, err := coll.FindFive(fil)
 	if err != nil {
 		return nil, err
 	}

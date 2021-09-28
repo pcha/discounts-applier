@@ -69,6 +69,22 @@ func (_m *MockMongoClient) Disconnect(ctx context.Context) error {
 	return r0
 }
 
+// GetDB provides a mock function with given fields:
+func (_m *MockMongoClient) GetDB() MongoDatabase {
+	ret := _m.Called()
+
+	var r0 MongoDatabase
+	if rf, ok := ret.Get(0).(func() MongoDatabase); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(MongoDatabase)
+		}
+	}
+
+	return r0
+}
+
 // ListDatabaseNames provides a mock function with given fields: ctx, filter, opts
 func (_m *MockMongoClient) ListDatabaseNames(ctx context.Context, filter interface{}, opts ...*options.ListDatabasesOptions) ([]string, error) {
 	_va := make([]interface{}, len(opts))

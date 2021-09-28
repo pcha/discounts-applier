@@ -10,8 +10,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-// MongoClient ...
+// a MongoClient is a Wrapper of *mongo.Client
 type MongoClient interface {
+	GetDB() MongoDatabase
+
+	// Inheritance of *mongo.Client
 	// Connect initializes the Client by starting background monitoring goroutines.
 	// If the Client was created using the NewClient function, this method must be called before a Client can be used.
 	//
